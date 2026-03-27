@@ -225,26 +225,34 @@
   .send-all-btn:active { transform: translateY(0); }
   .send-all-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-  /* モーダル */
   .modal-overlay {
     display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.7);
-    z-index: 100;
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
     overflow-y: auto;
     padding: 32px 16px;
   }
 
-  .modal-overlay.open { display: block; }
+  .modal-overlay.open { display: flex; }
 
   .modal {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 16px;
     max-width: 660px;
-    margin: 0 auto;
+    width: 90%;
     overflow: hidden;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
   .modal-header {
@@ -357,7 +365,7 @@
     transition: border-color 0.2s;
   }
 
-  .btn-cancel:hover { border-color: var(--text-muted); }
+  .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
 
   .student-card {
     background: var(--surface);
@@ -431,30 +439,11 @@
     font-weight: 500;
   }
 
-  .status-badge.pending {
-    background: var(--surface2);
-    color: var(--text-muted);
-  }
-
-  .status-badge.sending {
-    background: rgba(79, 142, 247, 0.15);
-    color: var(--accent);
-  }
-
-  .status-badge.sent {
-    background: rgba(52, 211, 153, 0.15);
-    color: var(--success);
-  }
-
-  .status-badge.failed {
-    background: rgba(248, 113, 113, 0.15);
-    color: var(--danger);
-  }
-
-  .status-badge.manual-done {
-    background: rgba(251, 191, 36, 0.15);
-    color: var(--warning);
-  }
+  .status-badge.pending { background: var(--surface2); color: var(--text-muted); }
+  .status-badge.sending { background: rgba(79, 142, 247, 0.15); color: var(--accent); }
+  .status-badge.sent { background: rgba(52, 211, 153, 0.15); color: var(--success); }
+  .status-badge.failed { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
+  .status-badge.manual-done { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
 
   .btn {
     border: none;
@@ -523,7 +512,6 @@
   }
 
   .template-textarea:hover { border-color: var(--border); }
-
   .template-textarea:focus {
     border-color: var(--accent);
     background: rgba(79, 142, 247, 0.05);
@@ -547,106 +535,6 @@
   }
 
   .toggle-preview:hover { color: var(--text); }
-
-  /* 確認モーダル */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-overlay.active { display: flex; }
-
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 28px 32px;
-    max-width: 440px;
-    width: 90%;
-    animation: modalIn 0.2s ease;
-  }
-
-  @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95) translateY(8px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .modal-icon { font-size: 36px; margin-bottom: 12px; }
-
-  .modal h2 {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-
-  .modal p {
-    font-size: 14px;
-    color: var(--text-dim);
-    line-height: 1.7;
-    margin-bottom: 20px;
-  }
-
-  .modal-targets {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-bottom: 20px;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-
-  .modal-target-item {
-    font-size: 13px;
-    color: var(--text-dim);
-    padding: 4px 0;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .modal-target-item:last-child { border-bottom: none; }
-
-  .modal-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-
-  .btn-cancel {
-    background: var(--surface2);
-    color: var(--text-dim);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-family: 'Noto Sans JP', sans-serif;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .btn-cancel:hover { border-color: var(--text-muted); color: var(--text); }
-
-  .btn-confirm {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
-    font-size: 14px;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.2s;
-  }
-
-  .btn-confirm:hover { opacity: 0.85; }
 </style>
 </head>
 <body>
@@ -748,7 +636,8 @@ function loadLineIds(gasUrl) {
         ? `✅ ${count}件のLINE IDを読み込みました`
         : '⚠️ LINE IDが取得できませんでした';
       if (students.length > 0) { applyLineIds(); renderStudents(); }
-      if (document.head.contains(script)) document.head.removeChild(script);
+      const script = document.querySelector(`script[src*="${cbName}"]`);
+      if (script && document.head.contains(script)) document.head.removeChild(script);
       delete window[cbName];
       resolve();
     };
@@ -780,18 +669,15 @@ uploadArea.addEventListener('drop', e => {
 });
 fileInput.addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
 
-// ページ読み込み時に自動でLINE IDを取得
 window.addEventListener('DOMContentLoaded', () => {
   const url = document.getElementById('gasUrl').value.trim();
   if (url) loadLineIds(url);
 });
 
-// GAS URL入力時に自動でLINE IDを取得
 document.getElementById('gasUrl').addEventListener('blur', e => {
   const url = e.target.value.trim();
   if (url) loadLineIds(url);
 });
-
 
 function showError(msg) {
   errorMsg.textContent = msg;
@@ -821,35 +707,54 @@ async function processFile(file) {
     if (!sheetName) throw new Error('シートが見つかりません');
 
     const ws = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(ws, { range: 9, defval: '' });
-    if (jsonData.length === 0) throw new Error('データが見つかりません');
 
-    const properData = jsonData
+    // ヘッダー行は10行目（0-indexed: 9）→ range: 9 でその行をヘッダーとして読む
+    // 新しい列構成:
+    //   D列(index 3) = 特訓名 兼 コース名
+    //   E列(index 4) = 生徒名
+    //   F列(index 5) = 開始時間
+    //   G列(index 6) = 終了時間
+    //   H列(index 7) = 講師名
+    // header: 1 で配列モードにして列インデックスで直接取得（ヘッダー名に依存しない）
+    const jsonData = XLSX.utils.sheet_to_json(ws, { range: 9, header: 1, defval: '' });
+
+    if (jsonData.length < 2) throw new Error('データが見つかりません');
+
+    // 1行目はヘッダー行なのでスキップ（index 0）、index 1以降がデータ
+    const dataRows = jsonData.slice(1);
+
+    const properData = dataRows
       .filter(row => {
-        const name = row['生徒名'] || row['__EMPTY_2'] || '';
-        const nameStr = name.toString().trim();
-        // 日本語文字（漢字・ひらがな・カタカナ）を含む行のみ対象
-        return nameStr !== '' && nameStr !== '計数' && /[　-鿿゠-ヿ぀-ゟ]/.test(nameStr);
+        const name = (row[4] || '').toString().trim(); // E列: 生徒名
+        return name !== '' && /[　-鿿゠-ヿ぀-ゟ]/.test(name);
       })
-      .map(row => ({
-        'lineUserId': '',
-        '生徒氏名': row['生徒名'] || row['__EMPTY_2'] || '',
-        '担当': row['特訓名: 講師'] || row['__EMPTY_6'] || '',
-        '科目': (() => { const t = row['特訓名: 特訓名'] || row['__EMPTY'] || ''; const m1 = t.match(/[（(]([^）)]+)[）)]/); if (m1) return m1[1]; const m2 = t.match(/:([^:]+)$/); if (m2 && !m2[1].includes('指導枠') && !m2[1].includes('枠')) return m2[1]; return row['コース'] || row['__EMPTY_7'] || ''; })(),
-        '開始時間': row['特訓名: 開始時間'] || row['__EMPTY_4'] || '',
-        '終了時間': row['特訓名: 終了時間'] || row['__EMPTY_5'] || '',
-        '校舎': row['拠点'] || row['__EMPTY_9'] || '',
-        '特訓名': row['特訓名: 特訓名'] || row['__EMPTY'] || '',
-        'コース名': row['コース'] || row['__EMPTY_7'] || '',
-      }));
+      .map(row => {
+        const tokkunName = (row[3] || '').toString().trim(); // D列: 特訓名/コース名
+        return {
+          'lineUserId': '',
+          '生徒氏名': (row[4] || '').toString().trim(),   // E列
+          '開始時間':  (row[5] || '').toString().trim(),   // F列
+          '終了時間':  (row[6] || '').toString().trim(),   // G列
+          '担当':      (row[7] || '').toString().trim(),   // H列
+          '特訓名':    tokkunName,
+          'コース名':  tokkunName, // D列をコース名判定にも使う
+          '科目': (() => {
+            // 特訓名から科目を抽出: 「（英語）」や「: 英語」形式に対応
+            const m1 = tokkunName.match(/[（(]([^）)]+)[）)]/);
+            if (m1) return m1[1];
+            const m2 = tokkunName.match(/:([^:]+)$/);
+            if (m2 && !m2[1].includes('指導枠') && !m2[1].includes('枠')) return m2[1].trim();
+            return '';
+          })(),
+        };
+      });
 
-    students = properData.filter(s => s['生徒氏名'] && s['生徒氏名'].toString().trim() !== '');
+    students = properData.filter(s => s['生徒氏名'] !== '');
     if (students.length === 0) throw new Error('生徒データが見つかりません');
 
     statusMap = {};
     students.forEach((_, i) => statusMap[i] = 'pending');
 
-    // キャッシュがあれば照合、なければGASから取得
     const gasUrl = document.getElementById('gasUrl').value.trim();
     if (Object.keys(lineIdCache).length > 0) {
       applyLineIds();
@@ -874,10 +779,9 @@ function formatTime(val) {
   return match ? match[1] : str;
 }
 
-// コース名（I列）から前倒し時間（時間数）を計算
+// コース名（D列）から前倒し時間を計算
 function getOffsetHours(student) {
   const courseName = student['コース名'] || '';
-
   if (/体験特訓/.test(courseName)) return 0;
   if (/独学支援特訓|宿題確認特訓/.test(courseName)) return 0;
   if (/個別管理特訓L/.test(courseName)) return 2;
@@ -910,7 +814,6 @@ function getTemplate(student) {
   return `明日の特訓の詳細です。\nコース・教科：${tokkunType}\u3000${subject}\n${start}‐${end}\n担当：${teacher}\nお待ちしております。\nこの通知に返信不要です。`;
 }
 
-
 function renderStudents() {
   studentList.innerHTML = '';
   students.forEach((student, i) => {
@@ -926,13 +829,8 @@ function renderStudents() {
     card.id = `card_${i}`;
 
     const statusLabel = {
-      pending: '⏳ 未送信',
-      sending: '📤 送信中...',
-      sent: '✅ 送信済み',
-      failed: '❌ 失敗',
-      manual: '✉️ 手動送信済み'
+      pending: '⏳ 未送信', sending: '📤 送信中...', sent: '✅ 送信済み', failed: '❌ 失敗', manual: '✉️ 手動送信済み'
     }[status];
-
     const statusClass = status === 'manual' ? 'manual-done' : status;
 
     card.innerHTML = `
@@ -974,7 +872,7 @@ function togglePreview(i) {
 
 async function copyTemplate(i) {
   const ta = document.getElementById(`textarea_${i}`);
-  const text = ta ? ta.value : (students[i]['生徒氏名'] + '\n' + getTemplate(students[i]));
+  const text = ta ? ta.value : (students[i]['生徒氏名'] + 'さん\n' + getTemplate(students[i]));
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -1007,7 +905,7 @@ async function sendOne(i) {
   const student = students[i];
   const userId = student['lineUserId'].toString().trim();
   const ta = document.getElementById(`textarea_${i}`);
-  const message = ta ? ta.value : (student['生徒氏名'] + '\n' + getTemplate(student));
+  const message = ta ? ta.value : (student['生徒氏名'] + 'さん\n' + getTemplate(student));
 
   setStatus(i, 'sending');
 
@@ -1059,7 +957,7 @@ function sendAll() {
     targets.forEach(({ s, i }) => {
       const name = s['生徒氏名'];
       const ta = document.getElementById(`textarea_${i}`);
-      const message = ta ? ta.value : (name + '\n' + getTemplate(s));
+      const message = ta ? ta.value : (name + 'さん\n' + getTemplate(s));
       const row = document.createElement('div');
       row.className = 'preview-row';
       row.innerHTML = `
@@ -1121,7 +1019,7 @@ async function confirmSendAll() {
   for (const { s, i } of targets) {
     const userId = s['lineUserId'].toString().trim();
     const ta2 = document.getElementById(`textarea_${i}`);
-    const message = ta2 ? ta2.value : (s['生徒氏名'] + '\n' + getTemplate(s));
+    const message = ta2 ? ta2.value : (s['生徒氏名'] + 'さん\n' + getTemplate(s));
     setStatus(i, 'sending');
 
     try {
@@ -1156,9 +1054,7 @@ function updateCard(i) {
 
   card.className = `student-card${status === 'sent' ? ' status-sent' : status === 'failed' ? ' status-failed' : status === 'manual' ? ' status-manual' : ''}`;
 
-  const labels = {
-    pending: '⏳ 未送信', sending: '📤 送信中...', sent: '✅ 送信済み', failed: '❌ 失敗', manual: '✉️ 手動送信済み'
-  };
+  const labels = { pending: '⏳ 未送信', sending: '📤 送信中...', sent: '✅ 送信済み', failed: '❌ 失敗', manual: '✉️ 手動送信済み' };
   const classes = { pending: 'pending', sending: 'sending', sent: 'sent', failed: 'failed', manual: 'manual-done' };
 
   badge.textContent = labels[status];
