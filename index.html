@@ -446,7 +446,6 @@
   .status-badge.failed { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
   .status-badge.manual-done { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
 
-  /* エラー詳細バー */
   .error-detail-bar {
     display: flex;
     align-items: center;
@@ -639,7 +638,6 @@ let students = [];
 let statusMap = {};
 let lineIdCache = {};
 
-// LINE APIエラーコード→日本語マッピング
 const LINE_ERROR_MAP = {
   400: 'UID不正または存在しないユーザー（LINE管理シートのUIDを確認してください）',
   401: '認証エラー（アクセストークンを確認してください）',
@@ -666,6 +664,11 @@ function friendlyError(code, message) {
 
 function normalizeName(str) {
   return str.toString().trim().replace(/[\s\u3000]+/g, '').normalize('NFKC');
+}
+
+// コース名から先頭の[生徒名]プレフィックスを除去する
+function cleanCourseName(raw) {
+  return (raw || '').replace(/^\[[^\]]*\]/, '').trim();
 }
 
 function loadLineIds(gasUrl) {
@@ -815,12 +818,13 @@ function formatTime(val) {
 }
 
 function getOffsetHours(student) {
-  const courseName = student['コース名'] || '';
+  // [生徒名]プレフィックスを除去してからマッチ
+  const courseName = cleanCourseName(student['コース名']);
   if (/体験特訓/.test(courseName)) return 0;
   if (/独学支援特訓|宿題確認特訓/.test(courseName)) return 0;
   if (/個別管理特訓L/.test(courseName)) return 2;
   if (/個別管理特訓S/.test(courseName)) return 1;
-  if (/完全指導特訓L/.test(courseName)) return 1;
+  if (/完全指導特訓L/.test(courseName)) return 0;  // 修正: 1→0
   if (/完全指導特訓S/.test(courseName)) return 0;
   return 0;
 }
@@ -842,9 +846,10 @@ function getTemplate(student) {
   const end = formatTime(student['終了時間']);
   const subject = student['科目'] || '';
   const teacher = student['担当'] || '';
-  const courseName = student['コース名'] || '';
-  const courseMatch = courseName.match(/(個別管理特訓[LS]|完全指導特訓[LS]|独学支援特訓[LS]?|宿題確認特訓[LS]?|体験特訓)/);
-  const tokkunType = courseMatch ? courseMatch[1] : (student['特訓名'] || '');
+  // [生徒名]プレフィックスを除去してからコース種別を抽出
+  const courseName = cleanCourseName(student['コース名']);
+  const courseMatch = courseName.match(/(個別管理特訓[LS]|個別指導特訓[LS]|完全指導特訓[LS]|独学支援特訓[LS]?|宿題確認特訓[LS]?|体験特訓)/);
+  const tokkunType = courseMatch ? courseMatch[1] : (cleanCourseName(student['特訓名']) || '');
   return `明日の特訓の詳細です。\nコース・教科：${tokkunType}\u3000${subject}\n${start}‐${end}\n担当：${teacher}\nお待ちしております。\nこの通知に返信不要です。`;
 }
 
@@ -1113,7 +1118,6 @@ function updateCard(i) {
   badge.textContent = labels[status];
   badge.className = `status-badge ${classes[status]}`;
 
-  // エラーバー表示
   if (status === 'failed' && errMsg) {
     errorText.textContent = errMsg;
     errorBar.style.display = 'flex';
